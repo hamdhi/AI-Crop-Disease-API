@@ -1,0 +1,33 @@
+# Step 1: Project metadata
+# This block tells Python packaging tools how to identify and install the API.
+[project]
+name = "crop-disease-api"
+version = "0.1.0"
+description = "Crop disease API for uploading and validating plant images"
+readme = "README.md"
+authors = [
+    { name = "MHM Hamdhi", email = "hamdhiharis@gmail.com" }
+]
+requires-python = ">=3.12"
+
+# Step 2: Runtime dependencies
+# These are the libraries needed for the API to run, validate images, and accept file uploads.
+dependencies = [
+    "uvicorn",
+    "ruff",
+    "pydantic",
+    "fastapi",
+    "pillow",
+    "python-multipart>=0.0.32",
+]
+
+# Step 3: Command-line entry point
+# This allows the package to be started as a script from the terminal.
+[project.scripts]
+crop-disease-api = "crop_disease_api:main"
+
+# Step 4: Build system configuration
+# uv_build is used to package the project in a modern Python build setup.
+[build-system]
+requires = ["uv_build>=0.12.7,<0.13.0"]
+build-backend = "uv_build"
