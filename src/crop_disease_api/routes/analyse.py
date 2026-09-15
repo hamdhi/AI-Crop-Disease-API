@@ -15,6 +15,8 @@ Step 5: return useful metadata to the client
 import uuid
 from typing import Any
 
+from ..services.vision import analyse_image as vision_analyse_image
+
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from ..services.image import resize_image, save_image, validate_image
@@ -69,6 +71,12 @@ async def process_single_image(file: UploadFile) -> dict[str, Any]:
     # The function returns the file path that was saved on disk.
     saved_path = save_image(processed_content, upload_path="uploads", filename=unique_filename)
 
+    # Run vision analysis on the processed image.
+    # This is where the AI model inspects the plant image and returns a disease assessment.
+    vision_analysis_result = await vision_analyse_image(processed_content, file.content_type)
+
+    print(vision_analysis_result)
+
     # Return metadata to the client so they can confirm what was processed.
     return {
         "is_valid": validation["is_valid"],
@@ -77,6 +85,7 @@ async def process_single_image(file: UploadFile) -> dict[str, Any]:
         "height": validation["height"],
         "size_mb": validation["size_mb"],
         "image_path": saved_path,
+        "vision_analysis": vision_analysis_result,
     }
 
 
@@ -95,9 +104,13 @@ async def analyse_image(file: UploadFile = File(...)) -> dict[str, Any]:
     - validates the content type before processing begins
     """
     if file.content_type is None or not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="Invalid file type")
+        raise HTTPException(status_code=400, detail="Invalid file type. please upload an image")
 
-    # Pass the file into the real processing flow.
-    return await process_single_image(file)
+    result = await process_single_image(file)
+
+    print(f"Analysis result for {file.filename}: {result}")
+
+    # Return the processed image result only once.
+    return result
 
     

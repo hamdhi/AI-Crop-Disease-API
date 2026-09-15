@@ -19,6 +19,8 @@ dependencies = [
     "fastapi",
     "pillow",
     "python-multipart>=0.0.32",
+    "google-genai",
+    "python-dotenv"
 ]
 
 # Step 3: Command-line entry point

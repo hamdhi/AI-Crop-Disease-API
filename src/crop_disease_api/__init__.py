@@ -1,25 +1,33 @@
 """
 Crop disease API package.
 
-Step 1: This file creates the FastAPI application instance.
-Step 2: It imports the route file where the upload logic is defined.
-Step 3: It exposes a health endpoint so the API can be checked easily.
-Step 4: It contains the run function used to start the server.
+This file is the project entry point.
+It is the top-level place where the FastAPI app is created and connected to its routes.
 
-Why this file matters:
-- It is the entry point for the API.
-- It connects the app to route files.
-- It gives the project a clean top-level object to run with uvicorn.
+Learning flow:
+Step 1: load environment variables
+Step 2: create the FastAPI app instance
+Step 3: include the route module
+Step 4: expose a basic health endpoint
+Step 5: run the server with uvicorn
+
+Think of this file as the front door of the API.
+Everything important starts from here.
 """
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 
-# Import the upload route module.
-# This helps us keep endpoint code separate from app startup code.
+# Step 1: Load environment variables before app startup.
+# This is useful for secret values such as GEMINI_API_KEY.
+load_dotenv()
+
+# Step 2: Import the route module containing the /analyse endpoint.
+# This keeps the API code organized by feature instead of placing everything in one file.
 from .routes.analyse import router
 
-# Step 1: Create the main FastAPI application object.
-# This object controls the entire API and holds its routes, middleware, and metadata.
+# Step 3: Create the main FastAPI application object.
+# This object contains the app configuration and all registered routes.
 app = FastAPI(
     title="Netra Vision API",
     docs_url="/docs",
@@ -27,47 +35,44 @@ app = FastAPI(
     openapi_url="/openapi.json",
 )
 
-# Step 2: Include the router from the analyse route file.
-# This means every endpoint defined there becomes part of the app.
+# Step 4: Include the router.
+# This attaches all endpoints defined in the analyse module to the app.
 app.include_router(router)
 
 
 @app.get("/")
 async def root() -> dict:
     """
-    Step 3: Health check endpoint.
+    Step 5: Health check endpoint.
 
     What it does:
-    - tells us the API is alive and responding
-    - gives a quick overview of available endpoints
+    - confirms the app is running
+    - gives a quick guide to the main endpoint
 
     How it does:
-    - returns a normal JSON dictionary to the browser or API client
-    - uses FastAPI's automatic JSON serialization
+    - returns a normal JSON dictionary
+    - FastAPI serializes it automatically for the client
     """
     return {
         "message": "Crop disease API is healthy",
         "endpoints": {
-            "POST /analyse": "Upload an image for validation and saving",
+            "POST /analyse": "Upload an image for validation, processing, and AI analysis",
         },
     }
 
 
 def main() -> None:
     """
-    Step 4: Run the API from the terminal.
+    Step 6: Run the API from the terminal.
 
     What it does:
-    - starts the server locally so the API can receive requests
+    - starts the uvicorn server
 
     How it does:
     - imports uvicorn
-    - tells uvicorn which FastAPI app to run
-    - chooses host and port configuration
+    - passes the app object to uvicorn.run()
     """
     import uvicorn
 
-    # Use uvicorn to launch the app.
-    # The string "crop_disease_api:app" tells uvicorn to find the app object in this package.
     uvicorn.run("crop_disease_api:app", host="0.0.0.0", port=8000, reload=True)
 
