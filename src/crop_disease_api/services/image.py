@@ -112,8 +112,7 @@ def resize_image(content: bytes) -> bytes:
         new_width = max(1, int(width * (new_height / height)))
 
     # LANCZOS gives better quality than a rough resize.
-    # Older Pillow versions may not expose Resampling, so we fall back to ANTIALIAS.
-    resample = Image.Resampling.LANCZOS if hasattr(Image, "Resampling") else Image.ANTIALIAS
+    resample = Image.Resampling.LANCZOS
     resized_image = image.resize((new_width, new_height), resample)
 
     # Save the resized image to memory and return its bytes.

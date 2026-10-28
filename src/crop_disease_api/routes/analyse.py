@@ -113,4 +113,33 @@ async def analyse_image(file: UploadFile = File(...)) -> dict[str, Any]:
     # Return the processed image result only once.
     return result
 
-    
+
+@router.post("/batch")
+async def analyse_batch(files: list[UploadFile] = File(...)) -> list[dict[str, Any]]:
+    """
+    Step 4: Upload endpoint for multiple images.
+
+    What it does:
+    - accepts an uploaded file from the client
+    - checks the MIME type
+    - sends the file to the processing function
+
+    How it does:
+    - uses FastAPI's UploadFile and File(...) to receive multipart form data
+    - validates the content type before processing begins
+    """
+    if not files:
+        raise HTTPException(status_code=400, detail="No files provided")
+
+    results: list[dict[str, Any]] = []
+    for file in files:
+        if file.content_type is None or not file.content_type.startswith("image/"):
+            raise HTTPException(status_code=400, detail="Invalid file type. please upload an image")
+
+        result = await process_single_image(file)
+        results.append(result)
+
+    print(f"Analysis result for {files}: {results}")
+
+    # Return the processed image result only once.
+    return results
