@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Netra — Plant health studio</title>
+  <style>
+    body { font: 16px/1.5 system-ui, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #24352b; background: #f7faf7; }
+    h1 { font-size: 1.8rem; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; }
+    input { max-width: 100%; }
+    button { display: block; margin-top: 20px; padding: 10px 24px; border: 0; border-radius: 6px; background: #236b42; color: white; font: inherit; cursor: pointer; }
+    button:disabled { opacity: .5; cursor: default; }
+    #previews { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 20px; }
+    figure { margin: 0; width: 140px; }
+    img { width: 140px; height: 120px; object-fit: contain; background: white; border-radius: 6px; }
+    figcaption { overflow-wrap: anywhere; font-size: .85rem; }
+    article { margin: 24px 0; padding: 24px; background: white; border: 1px solid #d5dfd6; border-radius: 12px; overflow-wrap: anywhere; }
+    h2 { font-size: 1.5rem; margin: 4px 0 12px; }
+    h3 { font-size: 1.05rem; margin: 24px 0 12px; }
+    h4 { font-size: 1rem; margin: 0 0 8px; }
+    .filename, .muted { color: #59685e; font-size: .9rem; }
+    .filename { margin: 0; }
+    .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; background: #edf0ed; font-size: .85rem; font-weight: 600; }
+    .healthy { color: #185a35; background: #e0f3e6; }
+    .mild, .moderate { color: #755000; background: #fff1c7; }
+    .severe, .critical { color: #962929; background: #fce5e5; }
+    .summary { padding: 16px; background: #f2f7f3; border-left: 3px solid #398354; border-radius: 4px; }
+    .entry { padding: 16px; border: 1px solid #e0e7e1; border-radius: 8px; margin: 12px 0; }
+    .entry p { margin: 8px 0 0; }
+    .prose { white-space: pre-line; }
+    @media (max-width: 480px) { body { margin: 24px auto; padding: 0 16px; } article { padding: 16px; } }
+    .error { color: #a12626; }
+    * { box-sizing: border-box; }
+    body { max-width: none; margin: 0; padding: 0; background: #f5f5ef; color: #243c31; }
+    button, input { font: inherit; }
+    :focus-visible { outline: 3px solid #b57d23; outline-offset: 5px; }
+    .shell { max-width: 1200px; margin: auto; padding: 0 36px; }
+    header { border-bottom: 1px solid #dce1d6; }
+    .navigation { display: flex; justify-content: space-between; align-items: center; min-height: 88px; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 750; font-size: 25px; letter-spacing: -1px; }
+    .brand-icon { display: grid; place-items: center; width: 37px; height: 37px; background: #234c39; color: #e4efb7; border-radius: 12px 12px 12px 2px; }
+    .brand-icon svg { width: 23px; height: 23px; }
+    .navigation span:last-child { font-size: 12px; color: #617266; letter-spacing: .08em; text-transform: uppercase; }
+    .hero { padding: 58px 0 38px; display: flex; justify-content: space-between; gap: 36px; align-items: end; }
+    .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #537057; }
+    h1 { font-family: Georgia, serif; font-weight: 400; font-size: clamp(38px, 5vw, 62px); letter-spacing: -2px; line-height: 1.08; margin: 14px 0 18px; }
+    h1 em { color: #56804b; }
+    .intro { max-width: 470px; color: #637066; margin: 0; }
+    .hero-note { max-width: 210px; padding-left: 18px; border-left: 2px solid #bbcaa8; color: #637066; font-size: 13px; }
+    .workspace { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 26px; align-items: start; padding-bottom: 60px; }
+    .upload-panel { background: #fff; padding: 26px; border: 1px solid #dce3d6; border-radius: 16px; box-shadow: 0 8px 30px #20392204; }
+    .panel-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    .step { color: #527044; background: #edf2e6; border-radius: 6px; padding: 4px 8px; font-size: 11px; font-weight: 700; }
+    .panel-heading h2 { font-size: 16px; margin: 0; letter-spacing: -.3px; }
+    .dropzone { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 30px 18px; border: 1.5px dashed #afc09d; border-radius: 10px; background: #f8faf4; cursor: pointer; transition: background .2s, border-color .2s; font-weight: 400; margin: 0; }
+    .dropzone:hover, .dropzone.dragging { background: #edf3e4; border-color: #426b38; }
+    .dropzone:focus-within { outline: 3px solid #b57d23; outline-offset: 3px; }
+    .dropzone input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+    .upload-icon { width: 42px; height: 42px; color: #5a794b; margin-bottom: 16px; }
+    .dropzone strong { font-size: 14px; }
+    .dropzone small { color: #6b7867; margin-top: 8px; font-size: 12px; }
+    .browse { text-decoration: underline; text-underline-offset: 3px; color: #476e37; }
+    #analyse { width: 100%; padding: 13px; border-radius: 9px; background: #254e39; font-size: 14px; font-weight: 600; transition: background .2s; }
+    #analyse:hover:not(:disabled) { background: #183a27; }
+    #analyse:disabled { opacity: .45; }
+    #previews { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    #previews:empty { margin: 0; }
+    figure { width: auto; min-width: 0; }
+    figure img { width: 100%; height: 78px; object-fit: cover; border: 1px solid #e0e5da; }
+    figcaption { font-size: 10px; margin-top: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .selection { font-size: 12px; color: #65725e; margin: 12px 0 0; }
+    .tips { margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e9df; }
+    .tips h3 { font-size: 12px; margin: 0 0 10px; }
+    .tips ul { font-size: 12px; color: #6b7867; padding-left: 18px; margin: 0; }
+    .tips li { margin: 7px 0; }
+    .result-panel > .panel-heading { padding: 5px 0; }
+    .empty-state { min-height: 390px; border: 1px solid #dce3d6; border-radius: 16px; background: #eef1e7; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px; text-align: center; }
+    .empty-state[hidden] { display: none; }
+    .botanical { width: 110px; height: 120px; margin-bottom: 20px; color: #789069; }
+    .empty-state h3 { font-family: Georgia, serif; font-size: 26px; font-weight: 400; margin: 0 0 10px; }
+    .empty-state p { font-size: 13px; color: #6a7863; max-width: 300px; margin: 0; }
+    #status { font-size: 13px; margin: 0 0 14px; }
+    #status:empty { display: none; }
+    .loading::before { content: ''; display: inline-block; width: 12px; height: 12px; border: 2px solid #cbd8bf; border-top-color: #365d3e; border-radius: 50%; margin-right: 9px; vertical-align: -2px; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    article { margin: 0 0 20px; padding: 28px; border-radius: 16px; box-shadow: 0 8px 30px #20392204; }
+    article h2 { letter-spacing: -.6px; font-size: 27px; margin: 8px 0 12px; }
+    article h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; margin-top: 26px; color: #65745d; }
+    .filename { font-size: 11px; }
+    .entry { background: #fafbf7; border-color: #e6ebdf; padding: 18px; }
+    .entry p, article > .prose { font-size: 14px; line-height: 1.75; }
+    .badge { font-size: 11px; }
+    .confidence { display: block; width: 100%; height: 5px; margin: 10px 0; accent-color: #64864e; }
+    footer { border-top: 1px solid #dce1d6; padding: 22px 0; font-size: 11px; color: #6b7867; }
+    footer .shell { display: flex; justify-content: space-between; gap: 16px; }
+    @media (max-width: 850px) { .workspace { grid-template-columns: 300px minmax(0, 1fr); gap: 18px; } .shell { padding: 0 24px; } .hero-note { display: none; } .upload-panel, article { padding: 20px; } }
+    @media (max-width: 640px) { .workspace { grid-template-columns: 1fr; } .hero { padding: 36px 0 28px; } .shell { padding: 0 18px; } .navigation { min-height: 72px; } .navigation span:last-child { font-size: 10px; } .empty-state { min-height: 300px; } footer .shell { flex-direction: column; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; transition: none !important; } }
+  </style>
+</head>
+<body>
+  <header><div class="shell navigation"><div class="brand"><div class="brand-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 20C3 9 8 4 20 4c0 12-6 17-15 12M5 20 15 9"/></svg></div>netra<span></span></div><span>Plant health studio</span></div></header>
+  <main class="shell">
+  <section class="hero"><div><div class="eyebrow">A closer look. A healthier crop.</div><h1>Understand your plants.<br><em>Help them thrive.</em></h1><p class="intro">Turn a plant photo into clear health insights and practical care recommendations.</p></div><p class="hero-note">From the first signs of stress to your next steps. Powered by AI vision.</p></section>
+  <div class="workspace">
+  <form id="upload" class="upload-panel">
+    <div class="panel-heading"><span class="step">01</span><h2>Upload your images</h2></div>
+    <label for="images" class="dropzone" id="dropzone">
+      <svg class="upload-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="7" y="7" width="34" height="34" rx="8"/><circle cx="18" cy="18" r="3"/><path d="m9 34 11-11 8 8 5-5 8 8"/></svg>
+      <strong>Drop plant photos here</strong><small>or <span class="browse">browse files</span> to get started</small><small>One image or a whole batch</small>
+      <input id="images" aria-label="Choose plant images" type="file" accept="image/*" multiple required>
+    </label>
+    <p id="selection" class="selection">No images selected</p>
+    <div id="previews"></div>
+    <button id="analyse" type="submit" disabled>Analyse plant health &rarr;</button>
+    <div class="tips"><h3>A good photo makes a difference</h3><ul><li>Use natural light and keep the image sharp.</li><li>Focus on the affected leaves or stems.</li><li>Include a clear view of the plant.</li></ul></div>
+  </form>
+  <section class="result-panel" aria-label="Analysis results">
+  <div class="panel-heading"><span class="step">02</span><h2>Your plant insights</h2></div>
+  <p id="status" role="status" aria-live="polite"></p>
+  <div class="empty-state" id="empty-state"><svg class="botanical" viewBox="0 0 110 120" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="55" cy="56" r="45" stroke-dasharray="2 6" opacity=".35"/><path d="M55 104V49M55 77C28 79 21 60 23 48c21 0 32 12 32 29ZM55 62c26 0 35-20 31-34-20 2-31 13-31 34ZM55 47C38 36 40 20 48 11c15 10 20 23 7 36Z"/><path d="m55 76-21-17m21 2 22-23M55 46l-6-23" opacity=".6"/></svg><h3>Every leaf tells a story.</h3><p>Upload your plant photos to explore disease findings, health insights, and suggested treatments.</p></div>
+  <div id="results"></div>
+  </section></div></main>
+  <footer><div class="shell"><span>NETRA / Plant health studio</span><span>Observe. Understand. Grow.</span></div></footer>
+  <script>
+    const picker = document.querySelector('#images');
+    const button = document.querySelector('#analyse');
+    const status = document.querySelector('#status');
+    const results = document.querySelector('#results');
+    const previews = document.querySelector('#previews');
+    let previewUrls = [];
+    let selectedFiles = [];
+    let busy = false;
+    const emptyState = document.querySelector('#empty-state');
+    const selection = document.querySelector('#selection');
+    const dropzone = document.querySelector('#dropzone');
+
+    function element(tag, text, className = '') {
+      const node = document.createElement(tag);
+      node.textContent = text;
+      node.className = className;
+      return node;
+    }
+
+    function readable(value, fallback = '') {
+      return typeof value === 'string' && value.trim() ? value : fallback;
+    }
+
+    function renderAnalysis(item, filename) {
+      const analysis = item?.vision_analysis ?? item ?? {};
+      const card = document.createElement('article');
+      card.append(element('p', filename, 'filename'));
+      card.append(element('h2', readable(analysis.crop_detected, 'Plant analysis')));
+      const severity = readable(analysis.severity).toLowerCase();
+      const knownSeverity = ['healthy', 'mild', 'moderate', 'severe', 'critical'].includes(severity);
+      card.append(element('span', knownSeverity ? (severity === 'healthy' ? 'Healthy' : `${severity[0].toUpperCase()}${severity.slice(1)} severity`) : 'Severity not provided', `badge ${knownSeverity ? severity : ''}`));
+      card.append(element('p', readable(analysis.overall_health, 'No overall health summary was provided.'), 'summary prose'));
+
+      card.append(element('h3', 'Disease findings'));
+      if (Array.isArray(analysis.diseases) && analysis.diseases.length) {
+        for (const disease of analysis.diseases) {
+          if (!disease || typeof disease !== 'object') continue;
+          const entry = element('div', '', 'entry');
+          entry.append(element('h4', readable(disease.name, 'Unnamed finding')));
+          if (typeof disease.confidence === 'number' && disease.confidence >= 0 && disease.confidence <= 1) {
+            entry.append(element('span', `AI confidence: ${Math.round(disease.confidence * 100)}%`, 'muted'));
+            const confidence = document.createElement('progress');
+            confidence.className = 'confidence';
+            confidence.max = 1;
+            confidence.value = disease.confidence;
+            confidence.setAttribute('aria-label', 'AI confidence');
+            entry.append(confidence);
+          }
+          entry.append(element('p', readable(disease.description, 'No description provided.'), 'prose'));
+          card.append(entry);
+        }
+      } else {
+        card.append(element('p', Array.isArray(analysis.diseases) ? 'No diseases detected.' : 'Disease findings were not provided.', 'muted'));
+      }
+
+      card.append(element('h3', 'Suggested treatments'));
+      const types = { organic: 'Organic', chemical: 'Chemical', preventive: 'Preventive' };
+      const urgency = { immediate: 'Act immediately', within_week: 'Within one week', seasonal: 'Seasonal care' };
+      if (Array.isArray(analysis.treatments) && analysis.treatments.length) {
+        for (const treatment of analysis.treatments) {
+          if (!treatment || typeof treatment !== 'object') continue;
+          const entry = element('div', '', 'entry');
+          entry.append(element('h4', readable(treatment.treatment_name, 'Suggested treatment')));
+          const labels = [Object.hasOwn(types, treatment.treatment_type) ? types[treatment.treatment_type] : '', Object.hasOwn(urgency, treatment.urgency) ? urgency[treatment.urgency] : ''].filter(Boolean);
+          if (labels.length) entry.append(element('span', labels.join(' · '), 'badge'));
+          entry.append(element('p', readable(treatment.instructions, 'No instructions provided.'), 'prose'));
+          card.append(entry);
+        }
+      } else {
+        card.append(element('p', 'No treatment recommendations provided.', 'muted'));
+      }
+      if (readable(analysis.additional_notes)) {
+        card.append(element('h3', 'Additional notes'), element('p', analysis.additional_notes, 'prose'));
+      }
+      return card;
+    }
+
+    function updateSelection(files) {
+      if (busy) return;
+      selectedFiles = Array.from(files);
+      previewUrls.forEach(url => URL.revokeObjectURL(url));
+      previewUrls = [];
+      previews.replaceChildren();
+      results.replaceChildren();
+      status.textContent = '';
+      status.className = '';
+      emptyState.hidden = false;
+      selection.textContent = selectedFiles.length ? `${selectedFiles.length} image${selectedFiles.length === 1 ? '' : 's'} selected` : 'No images selected';
+      button.disabled = !selectedFiles.length;
+      for (const file of selectedFiles) {
+        const figure = document.createElement('figure');
+        const image = document.createElement('img');
+        const caption = document.createElement('figcaption');
+        const url = URL.createObjectURL(file);
+        previewUrls.push(url);
+        image.src = url;
+        image.alt = file.name;
+        caption.textContent = file.name;
+        figure.append(image, caption);
+        previews.append(figure);
+      }
+    }
+    picker.addEventListener('change', () => updateSelection(picker.files));
+    for (const name of ['dragenter', 'dragover']) {
+      dropzone.addEventListener(name, event => { event.preventDefault(); if (!busy) dropzone.classList.add('dragging'); });
+    }
+    for (const name of ['dragleave', 'drop']) {
+      dropzone.addEventListener(name, event => { event.preventDefault(); dropzone.classList.remove('dragging'); });
+    }
+    dropzone.addEventListener('drop', event => {
+      if (busy) return;
+      const files = Array.from(event.dataTransfer.files);
+      if (!files.length || files.some(file => !file.type.startsWith('image/'))) {
+        status.className = 'error';
+        status.textContent = 'Please choose image files only.';
+        return;
+      }
+      picker.required = false;
+      picker.value = '';
+      updateSelection(files);
+    });
+
+    document.querySelector('#upload').addEventListener('submit', async event => {
+      event.preventDefault();
+      const files = [...selectedFiles];
+      if (!files.length || busy) return;
+      busy = true;
+      const batch = files.length > 1;
+      const data = new FormData();
+      files.forEach(file => data.append(batch ? 'files' : 'file', file));
+      button.disabled = true;
+      picker.disabled = true;
+      results.replaceChildren();
+      status.className = 'loading';
+      button.textContent = 'Analysing your plants...';
+      results.setAttribute('aria-busy', 'true');
+      emptyState.hidden = true;
+      status.textContent = 'Analysing… please wait.';
+      try {
+        const response = await fetch(batch ? '/analyse/batch' : '/analyse/', { method: 'POST', body: data });
+        const text = await response.text();
+        let payload;
+        try { payload = JSON.parse(text); } catch {
+          throw new Error(response.ok ? 'The server returned an unreadable result.' : `Analysis failed (${response.status}). Please try again.`);
+        }
+        if (!response.ok) {
+          const detail = payload.detail;
+          throw new Error(typeof detail === 'string' ? detail : 'The images could not be analysed. Please check your files and try again.');
+        }
+        const items = batch ? payload : [payload];
+        items.forEach((item, index) => {
+          results.append(renderAnalysis(item, files[index].name));
+        });
+        status.textContent = 'Analysis complete.';
+      } catch (error) {
+        status.className = 'error';
+        status.textContent = error instanceof TypeError ? 'Could not connect to the server. Check that Uvicorn is running and try again.' : error.message;
+      } finally {
+        busy = false;
+        status.classList.remove('loading');
+        results.setAttribute('aria-busy', 'false');
+        button.textContent = 'Analyse plant health →';
+        picker.disabled = false;
+        button.disabled = !selectedFiles.length;
+      }
+    });
+  </script>
+</body>
+</html>

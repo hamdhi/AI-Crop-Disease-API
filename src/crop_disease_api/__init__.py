@@ -25,10 +25,12 @@ load_dotenv()
 # Step 2: Import the route module containing the /analyse endpoint.
 # This keeps the API code organized by feature instead of placing everything in one file.
 from .routes.analyse import router
+from .ui import lifespan, router as ui_router
 
 # Step 3: Create the main FastAPI application object.
 # This object contains the app configuration and all registered routes.
 app = FastAPI(
+    lifespan=lifespan,
     title="Netra Vision API",
     docs_url="/docs",
     redoc_url="/redoc",
@@ -38,6 +40,7 @@ app = FastAPI(
 # Step 4: Include the router.
 # This attaches all endpoints defined in the analyse module to the app.
 app.include_router(router)
+app.include_router(ui_router)
 
 
 @app.get("/")

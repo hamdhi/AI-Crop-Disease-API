@@ -41,6 +41,12 @@ GEMINI_API_KEY=your_api_key_here
 uv run uvicorn crop_disease_api:app --host 127.0.0.1 --port 8000 --reload
 ```
 
+Once the server is ready, your default browser opens http://127.0.0.1:8000/ui.
+Select one image for single analysis or several images for batch analysis, then click **Analyse**.
+You can also open that URL manually if your browser does not launch.
+Automatic opening uses local port 8000; with `--reload`, each server restart may open another tab.
+The existing JSON health endpoint remains at `/` and API documentation at `/docs`.
+
 ## Learning notes
 
 - The app is split into small modules so the code is easier to study.
